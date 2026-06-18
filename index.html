@@ -116,7 +116,7 @@
   <div style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><div id="sharecard"></div></div>
 
   <div class="foot">
-    Powered by REM Academy · graded to professional standards (5–10 scale)<br/>
+    Powered by REM Academy<br/>
     Photos are analyzed in the moment and not stored.
   </div>
 </div>
@@ -226,14 +226,14 @@ function render(d){
   }
 
   html += '<div class="kicker" style="color:var(--mut);margin:24px 0 6px">Full scorecard</div>';
-  html += '<table class="sccard"><tbody>';
+  var rowsHtml='';
   CATS.forEach(([k,label])=>{
-    const s = d.scores && d.scores[k] ? d.scores[k] : null;
+    const s = getScore(d,k);
     if(!s) return;
     const sc = clamp(s.score);
-    html += '<tr><td class="c-name">'+label+'</td><td class="c-num" style="color:'+barColor(sc)+'">'+fmt(sc)+'</td><td class="c-read">'+esc(s.note||'')+'</td></tr>';
+    rowsHtml += '<tr><td class="c-name">'+label+'</td><td class="c-num" style="color:'+barColor(sc)+'">'+fmt(sc)+'</td><td class="c-read">'+esc(s.note||'')+'</td></tr>';
   });
-  html += '</tbody></table>';
+  html += rowsHtml ? ('<table class="sccard"><tbody>'+rowsHtml+'</tbody></table>') : '<div style="color:var(--mut);font-size:13px;padding:8px 0">Scorecard data was unavailable for this response — tap Critique another and try again.</div>';
 
   if(d.takeaway) html += '<div class="takeaway">'+esc(d.takeaway)+'</div>';
   html += '<div style="display:flex;gap:10px;margin-top:24px;flex-wrap:wrap">'
@@ -259,6 +259,7 @@ function reset(){
 
 function scrollToResults(){ $('results').scrollIntoView({behavior:'smooth',block:'start'}); }
 function clamp(n){ n=Number(n)||5; return Math.max(5,Math.min(10,n)); }
+function getScore(d,k){ if(!d||!d.scores) return null; if(Array.isArray(d.scores)){ return d.scores.find(function(x){ return x && (x.key===k||x.category===k||x.name===k); }) || null; } return d.scores[k]||null; }
 function fmt(n){ n=Number(n); return Number.isInteger(n) ? String(n) : n.toFixed(1); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 

@@ -114,7 +114,7 @@ module.exports = async (req, res) => {
 
     const payload = {
       model: MODEL,
-      max_tokens: 1500,
+      max_tokens: 2000,
       system: SYSTEM_PROMPT,
       tools: [CRITIQUE_TOOL],
       tool_choice: { type: 'tool', name: 'return_critique' },
