@@ -72,6 +72,7 @@
   .c-num{width:40px;font-weight:500;font-size:15px;text-align:center;white-space:nowrap}
   .c-read{color:var(--mut);font-size:13px;line-height:1.5}
   .logo{height:30px;width:auto;display:block}
+  #sharecard{width:720px;background:var(--bg);padding:34px;box-sizing:border-box}
   .foot{margin-top:40px;text-align:center;color:var(--mut);font-size:12px;line-height:1.7}
   .spin{width:18px;height:18px;border-radius:50%;border:2px solid rgba(8,34,28,.35);border-top-color:#08221c;animation:sp .7s linear infinite;display:inline-block}
   @keyframes sp{to{transform:rotate(360deg)}}
@@ -112,6 +113,7 @@
   </section>
 
   <section id="results"></section>
+  <div style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><div id="sharecard"></div></div>
 
   <div class="foot">
     Powered by REM Academy · graded to professional standards (5–10 scale)<br/>
@@ -119,6 +121,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1/dist/html-to-image.js"></script>
 <script>
 const CATS = [
   ['verticals','Verticals &amp; horizontals'],
@@ -233,11 +236,15 @@ function render(d){
   html += '</tbody></table>';
 
   if(d.takeaway) html += '<div class="takeaway">'+esc(d.takeaway)+'</div>';
-  html += '<button class="btn ghost" id="again" style="margin-top:24px">Critique another photo</button>';
+  html += '<div style="display:flex;gap:10px;margin-top:24px;flex-wrap:wrap">'
+        + '<button class="btn" id="share" style="flex:1;min-width:150px">Share result</button>'
+        + '<button class="btn ghost" id="again" style="flex:1;min-width:150px">Critique another</button>'
+        + '</div>';
 
   $('results').innerHTML = html;
   $('results').style.display='block';
   $('again').addEventListener('click', reset);
+  $('share').addEventListener('click', function(){ shareResult(d); });
   scrollToResults();
 }
 
@@ -254,6 +261,67 @@ function scrollToResults(){ $('results').scrollIntoView({behavior:'smooth',block
 function clamp(n){ n=Number(n)||5; return Math.max(5,Math.min(10,n)); }
 function fmt(n){ n=Number(n); return Number.isInteger(n) ? String(n) : n.toFixed(1); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+const SHARE_URL = 'bot.remacademy.co';
+
+async function shareResult(d){
+  var btn=document.getElementById('share');
+  if(typeof htmlToImage==='undefined'){ showErr('Share tool is still loading — give it a second and tap again.'); return; }
+  var card=document.getElementById('sharecard');
+  card.innerHTML=buildShareCard(d);
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Preparing…';
+  try{
+    if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(_){} }
+    var dataUrl = await htmlToImage.toPng(card, { pixelRatio:2, backgroundColor:'#182c2d', cacheBust:true });
+    var file = dataURLtoFile(dataUrl, 'rem-critique.png');
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({ files:[file], title:'REM Academy Photo Critique', text:'My photo scored '+fmt(d.overall)+'/10 on the REM Academy critique bot.' });
+    } else {
+      var a=document.createElement('a'); a.href=dataUrl; a.download='rem-critique.png'; document.body.appendChild(a); a.click(); a.remove();
+    }
+  }catch(e){
+    if(!(e && e.name==='AbortError')){ showErr('Could not generate the share image. Try again.'); }
+  }finally{
+    btn.disabled=false; btn.textContent='Share result';
+  }
+}
+
+function dataURLtoFile(dataUrl, name){
+  var parts=dataUrl.split(','), head=parts[0], b64=parts[1];
+  var m=head.match(/:(.*?);/), mime=m?m[1]:'image/png';
+  var bin=atob(b64), arr=new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++){ arr[i]=bin.charCodeAt(i); }
+  return new File([arr], name, {type:mime});
+}
+
+function buildShareCard(d){
+  var rows=CATS.map(function(c){
+    var k=c[0], label=c[1], s=d.scores&&d.scores[k]?d.scores[k]:null; if(!s) return '';
+    var sc=clamp(s.score), bt='padding:8px 0;border-top:0.5px solid rgba(255,255,255,.14);vertical-align:top';
+    return '<tr><td style="'+bt+';color:rgba(255,255,255,.82);font-size:13px;width:34%;padding-right:12px">'+label+'</td>'
+      +'<td style="'+bt+';color:'+barColor(sc)+';font-weight:500;font-size:15px;text-align:center;width:40px">'+fmt(sc)+'</td>'
+      +'<td style="'+bt+';color:rgba(255,255,255,.55);font-size:12px;line-height:1.5">'+esc(s.note||'')+'</td></tr>';
+  }).join('');
+  var fixes=(d.top_fixes||[]).map(function(fx){
+    var sv=SEV[fx.severity]||SEV.polish;
+    return '<div style="display:flex;gap:9px;margin:9px 0"><span style="width:9px;height:9px;border-radius:50%;background:'+sv.c+';flex:none;margin-top:5px"></span>'
+      +'<div><span style="font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;padding:3px 6px;border-radius:5px;background:'+sv.bg+';color:'+sv.fg+'">'+(esc(fx.tag)||sv.label)+'</span> '
+      +'<span style="font-size:13px;color:rgba(255,255,255,.82);line-height:1.5">'+esc(fx.text)+'</span></div></div>';
+  }).join('');
+  var photo=imageData?'<img src="data:image/jpeg;base64,'+imageData+'" style="width:100%;border-radius:10px;display:block;margin:0 0 18px;border:0.5px solid rgba(255,255,255,.14)"/>':'';
+  return '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">'
+      +'<img src="/rem-logo.png" style="height:26px;width:auto"/>'
+      +'<span style="font:500 11px/1 system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.55)">Photo Critique</span></div>'
+    + photo
+    + '<div style="display:flex;align-items:center;gap:16px;margin-bottom:18px">'
+      +'<div style="width:64px;height:64px;border-radius:50%;border:3px solid #1aa861;display:flex;align-items:center;justify-content:center;flex:none"><span style="font-family:\'EB Garamond\',serif;font-size:26px;color:#fff">'+fmt(d.overall)+'</span></div>'
+      +'<div><div style="font:500 16px/1.35 system-ui,sans-serif;color:#fff">'+esc(d.verdict||'')+'</div>'
+      +'<div style="font-size:12px;color:rgba(255,255,255,.55);margin-top:3px">'+esc(d.photo_type||'')+' · '+fmt(d.overall)+'/10</div></div></div>'
+    + (fixes?'<div style="background:#14282a;border:0.5px solid rgba(255,255,255,.14);border-radius:12px;padding:14px 16px;margin-bottom:18px"><div style="font:500 11px/1 system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:4px">Top fixes</div>'+fixes+'</div>':'')
+    + '<table style="width:100%;border-collapse:collapse">'+rows+'</table>'
+    + (d.takeaway?'<div style="margin-top:16px;padding-top:14px;border-top:0.5px solid rgba(255,255,255,.14);font-size:14px;color:rgba(255,255,255,.82);font-style:italic">'+esc(d.takeaway)+'</div>':'')
+    + '<div style="margin-top:22px;text-align:center;font-size:12px;color:rgba(255,255,255,.55);letter-spacing:.04em">Critique your own photos → <span style="color:#1aa861">'+SHARE_URL+'</span></div>';
+}
 </script>
 </body>
 </html>
