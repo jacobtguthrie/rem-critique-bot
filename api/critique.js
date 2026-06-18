@@ -59,15 +59,20 @@ const CRITIQUE_TOOL = {
     properties: {
       photo_type: { type: 'string', description: "e.g. 'Interior — Living room', 'Exterior — Twilight'" },
       not_a_property_photo: { type: 'boolean' },
-      overall: { type: 'number', description: 'Overall score 5.0–10.0, one decimal' },
+      overall: { type: 'number', description: 'Overall score 1.0–10.0, one decimal' },
       verdict: { type: 'string', description: 'One punchy mentor-voice line' },
       scores: {
-        type: 'object',
-        properties: {
-          verticals: catScore, perspective: catScore, focal_length: catScore, camera_height: catScore,
-          composition: catScore, staging: catScore, exposure: catScore, color: catScore, light: catScore, edit_craft: catScore
-        },
-        required: ['verticals','perspective','focal_length','camera_height','composition','staging','exposure','color','light','edit_craft']
+        type: 'array',
+        description: 'EXACTLY 10 entries — one per category, all 10 required, in this order: verticals, perspective, focal_length, camera_height, composition, staging, exposure, color, light, edit_craft.',
+        items: {
+          type: 'object',
+          properties: {
+            category: { type: 'string', enum: ['verticals','perspective','focal_length','camera_height','composition','staging','exposure','color','light','edit_craft'] },
+            score: { type: 'number', description: '1-10' },
+            note: { type: 'string', description: 'terse, specific read of what you see in this category' }
+          },
+          required: ['category','score','note']
+        }
       },
       top_fixes: {
         type: 'array',

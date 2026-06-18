@@ -208,6 +208,7 @@ async function analyze(){
 }
 
 function render(d){
+  console.log('REM critique response:', d);
   if(d.not_a_property_photo){
     $('results').innerHTML = '<div class="card"><div class="verdict">'+esc(d.verdict||"That doesn't look like a property photo — upload an interior, exterior, or twilight shot and I'll critique it.")+'</div></div>';
     $('results').style.display='block';
@@ -297,7 +298,7 @@ function dataURLtoFile(dataUrl, name){
 
 function buildShareCard(d){
   var rows=CATS.map(function(c){
-    var k=c[0], label=c[1], s=d.scores&&d.scores[k]?d.scores[k]:null; if(!s) return '';
+    var k=c[0], label=c[1], s=getScore(d,k); if(!s) return '';
     var sc=clamp(s.score), bt='padding:8px 0;border-top:0.5px solid rgba(255,255,255,.14);vertical-align:top';
     return '<tr><td style="'+bt+';color:rgba(255,255,255,.82);font-size:13px;width:34%;padding-right:12px">'+label+'</td>'
       +'<td style="'+bt+';color:'+barColor(sc)+';font-weight:500;font-size:15px;text-align:center;width:40px">'+fmt(sc)+'</td>'
