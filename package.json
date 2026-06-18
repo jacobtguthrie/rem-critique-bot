@@ -1,0 +1,9 @@
+{
+  "name": "rem-critique-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "REM Academy — Real Estate Photo Critique Bot. Upload a property photo, get a scored critique with ranked fixes.",
+  "engines": {
+    "node": ">=18"
+  }
+}
