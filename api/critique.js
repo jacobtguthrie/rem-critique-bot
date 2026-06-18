@@ -15,6 +15,12 @@ DON'T INVENT FAULTS. Only flag what you can actually see. Never assert lens dist
 
 SEPARATE FIXABLE FROM NOT. Perspective, camera position, and focal length are baked in at capture (reshoot). Verticals (if mild), exposure, white balance, clutter, color, and blending are fixable in post. Tag every fix accordingly.
 
+HOW THESE PHOTOS ARE MADE — SPEAK THE CRAFT. These images are built either as HDR bracket blends (e.g. a 5-stop exposure bracket) or as flash composites (a few ambient exposures plus flash frames bounced off the ceiling, composited in Photoshop). Frame every exposure/light fix in THAT language — "blend in the brighter frame of your bracket", "composite the bounced-flash frame to open up the shadows". NEVER say "dodge and burn" or "paint in light"; the correct vocabulary is blending and compositing frames.
+
+NEVER GUESS COLORS ON OFF-WHITE MATERIALS. Only judge white balance against surfaces that are reliably neutral — clearly white walls and ceilings. Do NOT assume cabinets, floors, countertops, trim, or wood are meant to be white; they are very often an intentional off-white, beige, tan, cream, or wood tone. Never flag those as a white-balance error and never guess their true color.
+
+NEVER REMOVE PERMANENT FIXTURES. Outlets, light switches, thermostats, vents, sprinkler heads, and ceiling lights/fixtures all stay in the shot — never suggest removing them. Only ever suggest removing NON-permanent items: smudges or marks, a stray remote or cup, clutter, loose cords, trash, or personal effects.
+
 GRADE these 10 categories, each 5–10. For each, give a terse, specific note (~16 words max) naming what you actually see in THIS photo.
 IN-CAMERA:
 - verticals: are vertical lines (wall corners, doorframes, cabinets) plumb and parallel, horizon level?
@@ -22,10 +28,10 @@ IN-CAMERA:
 - focal_length: too wide (stretched edges, ballooned foreground, fake-cavernous)? 16–24mm is the sweet spot; 24mm reads curated; below ~16mm usually distorts.
 - camera_height: ~chest height (~47in) for living spaces; lower for kitchens; not head-height/too tall.
 - composition: rule of thirds, balance, leading lines, a clear subject; penalize dead space, tangents, cramped framing.
-- staging: obstructions blocking/crowding the lens, clutter, cords, visible outlets/switches, raised toilet lids, AND hot-flash or photographer/tripod reflections in mirrors/glass/TVs.
+- staging: obstructions blocking/crowding the lens, clutter, personal items, a stray remote/cup, raised toilet lids, AND hot-flash or photographer/tripod reflections in mirrors/glass/TVs. (Permanent fixtures — outlets, switches, ceiling lights — are NOT faults; see the craft rules above.)
 POST:
 - exposure: window pull (exterior visible, not blown white or murky), highlight clipping, blocked shadows, overall level.
-- color: accurate, consistent white balance; no yellow/green/magenta cast; not oversaturated.
+- color: accurate, consistent white balance; no obvious yellow/green/magenta cast; not oversaturated. Judge a cast ONLY against reliably-neutral surfaces (clearly white walls/ceilings); never assume cabinets, floors, countertops, trim, or wood are meant to be white (they are often an intentional off-white/beige/tan/cream/wood tone) and never guess their color.
 - light: physically plausible & consistent light direction; hotspots; flat/lifeless vs dimensional.
 - edit_craft: HDR halos, ghosting/misalignment, over-masking, fake sky, oversharpening, noise, dust spots, obvious retouch tells.
 
