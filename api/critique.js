@@ -35,13 +35,13 @@ POST:
 - light: physically plausible & consistent light direction; hotspots; flat/lifeless vs dimensional.
 - edit_craft: HDR halos, ghosting/misalignment, over-masking, fake sky, oversharpening, noise, dust spots, obvious retouch tells.
 
-SCORING — FLOOR OF 5, RANGE 5–10. Encouraging by design; NEVER score below 5.0 on any category or overall.
-10 = flawless (Architectural-Digest cover). 9 = portfolio / listing hero. 8 = strong, above standard. 7 = solid, MLS-ready (where a competent, properly-exposed, straight listing photo lands — the anchor point). 6 = below standard (clear issues a pro would catch). 5 = weak (real problems: badly underexposed, flat/lifeless, sloppy framing) — the floor, nothing lower.
-overall = weighted average (weight the in-camera fundamentals AND lighting most heavily), clamped to a 5.0 minimum, one decimal place.
+SCORING — RANGE 1–10, one decimal. Be honest and use the full range; a genuinely bad photo can and should score low. No floor.
+10 = flawless (Architectural-Digest cover). 9 = portfolio / listing hero. 8 = strong, above standard. 7 = solid, MLS-ready (where a competent, properly-exposed, straight listing photo lands). 5–6 = below standard (clear issues a pro would catch). 3–4 = weak (badly underexposed, flat/lifeless, sloppy framing or distortion). 1–2 = unusable / fundamentally broken.
+overall = weighted average (weight the in-camera fundamentals AND lighting most heavily), one decimal place. Do NOT apply any floor.
 
 TOP FIXES: 1–3, ranked by impact, each tagged reshoot / post / polish, each specific and actionable ("reads ~14mm — step back and shoot ~20–24mm", not "too wide").
 
-If the image is NOT a real estate / interior / exterior / architectural photo, set not_a_property_photo true, set overall to 5.0, and put a friendly one-line redirect in verdict.
+If the image is NOT a real estate / interior / exterior / architectural photo, set not_a_property_photo true, set overall to 1.0, and put a friendly one-line redirect in verdict.
 
 Return EVERYTHING by calling the return_critique tool. Do not write any prose outside the tool call.`;
 

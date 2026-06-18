@@ -140,7 +140,7 @@ const SEV = {
   post:{c:'#e0a93f',bg:'rgba(224,169,63,.18)',fg:'#e8c684',label:'Post'},
   polish:{c:'#1aa861',bg:'rgba(26,168,97,.18)',fg:'#7fd9ac',label:'Polish'}
 };
-const barColor = s => s>=7 ? '#1aa861' : (s>=6 ? '#e0a93f' : '#e0654f');
+const barColor = s => s>=7 ? '#1aa861' : (s>=5 ? '#e0a93f' : '#e0654f');
 
 const $ = id => document.getElementById(id);
 let imageData = null; // base64 (no prefix)
@@ -214,7 +214,7 @@ function render(d){
     scrollToResults(); return;
   }
   let html = '<div class="rhead"><div class="kicker" style="color:var(--mut)">Critique</div><div class="ptype">'+esc(d.photo_type||'')+'</div></div>';
-  html += '<div class="overall"><div class="ring"><span class="serif">'+fmt(d.overall)+'</span></div><div><div class="verdict">'+esc(d.verdict||'')+'</div><div class="vsub">Overall · weighted to in-camera fundamentals · 5–10 scale</div></div></div>';
+  html += '<div class="overall"><div class="ring"><span class="serif">'+fmt(d.overall)+'</span></div><div><div class="verdict">'+esc(d.verdict||'')+'</div><div class="vsub">Overall · weighted to in-camera fundamentals · 1–10 scale</div></div></div>';
 
   if(d.top_fixes && d.top_fixes.length){
     html += '<div class="fixes"><div class="kicker" style="color:var(--mut);margin-bottom:4px">Top fixes</div>';
@@ -258,7 +258,7 @@ function reset(){
 }
 
 function scrollToResults(){ $('results').scrollIntoView({behavior:'smooth',block:'start'}); }
-function clamp(n){ n=Number(n)||5; return Math.max(5,Math.min(10,n)); }
+function clamp(n){ n=Number(n)||1; return Math.max(1,Math.min(10,n)); }
 function getScore(d,k){ if(!d||!d.scores) return null; if(Array.isArray(d.scores)){ return d.scores.find(function(x){ return x && (x.key===k||x.category===k||x.name===k); }) || null; } return d.scores[k]||null; }
 function fmt(n){ n=Number(n); return Number.isInteger(n) ? String(n) : n.toFixed(1); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
