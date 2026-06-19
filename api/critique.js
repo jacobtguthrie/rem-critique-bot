@@ -175,7 +175,11 @@ module.exports = async (req, res) => {
 
     // Optional shared passcode gate. Leave ACCESS_CODE unset to keep the link open.
     const code = process.env.ACCESS_CODE;
-    if (code && req.headers['x-access-code'] !== code) { res.status(401).json({ error: 'Invalid access code.' }); return; }
+    if (code && req.headers['x-access-code'] !== code) {
+      console.log('[ACCESS-DENIED] ' + new Date().toISOString());
+      res.status(401).json({ error: 'Invalid access code.' });
+      return;
+    }
 
     const notes = body.notes;
     const mode = body.mode === 'gallery' ? 'gallery' : 'single';
@@ -206,6 +210,14 @@ module.exports = async (req, res) => {
       ];
       system = SYSTEM_PROMPT; toolDef = CRITIQUE_TOOL; toolName = 'return_critique';
     }
+
+    // Usage log — who's running critiques (view in Vercel → your project → Logs).
+    console.log('[ACCESS] ' + JSON.stringify({
+      name: typeof body.name === 'string' ? body.name.slice(0, 80) : null,
+      email: typeof body.email === 'string' ? body.email.slice(0, 120) : null,
+      mode: mode,
+      ts: new Date().toISOString()
+    }));
 
     const payload = {
       model: MODEL,

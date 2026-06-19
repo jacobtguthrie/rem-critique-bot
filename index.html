@@ -92,6 +92,16 @@
   .foot{margin-top:40px;text-align:center;color:var(--mut);font-size:12px;line-height:1.7}
   .spin{width:18px;height:18px;border-radius:50%;border:2px solid rgba(8,34,28,.35);border-top-color:#08221c;animation:sp .7s linear infinite;display:inline-block}
   @keyframes sp{to{transform:rotate(360deg)}}
+  /* ---------- member gate ---------- */
+  .gate{position:fixed;inset:0;z-index:50;background:var(--bg);display:none;align-items:center;justify-content:center;padding:20px}
+  .gatebox{width:100%;max-width:382px;background:var(--bg2);border:0.5px solid var(--hair);border-radius:16px;padding:30px 26px;text-align:center}
+  .glogo{height:30px;width:auto;margin:0 auto 18px;display:block}
+  .gtitle{font-size:27px;font-weight:400;margin:4px 0 8px}
+  .gsub{color:var(--mut);font-size:14px;line-height:1.5;margin:0 0 20px}
+  .ginput{width:100%;background:var(--bg3);border:0.5px solid var(--hair);border-radius:9px;color:var(--tx);padding:13px 14px;font:400 15px/1.4 system-ui,sans-serif;margin-top:10px}
+  .ginput::placeholder{color:rgba(255,255,255,.4)}
+  .gate .err{text-align:left;margin-top:14px}
+  body.locked{overflow:hidden}
   @media(max-width:560px){
     .hero h1{font-size:34px}
     .c-name{width:44%}
@@ -100,6 +110,22 @@
 </style>
 </head>
 <body>
+<div id="gate" class="gate">
+  <div class="gatebox">
+    <img src="/rem-logo.png" alt="REM Academy" class="glogo" />
+    <div class="kicker">REM Academy · Founding 50</div>
+    <h2 class="serif gtitle">Members-only access</h2>
+    <p class="gsub">Enter your access password to use the Photo Critique Bot. This tool is included with your REM Academy membership.</p>
+    <input id="g-name" class="ginput" type="text" placeholder="Your name" autocomplete="name" />
+    <input id="g-email" class="ginput" type="email" placeholder="Your email" autocomplete="email" />
+    <input id="g-pass" class="ginput" type="password" placeholder="Access password" autocomplete="off" />
+    <button id="g-go" class="btn" style="margin-top:18px">Enter</button>
+    <div class="err" id="g-err"></div>
+  </div>
+</div>
+<script>/* show the gate instantly if this device hasn't unlocked yet */
+(function(){var g=document.getElementById('gate');try{var s=JSON.parse(localStorage.getItem('rem_gate_v1')||'null');if(s&&s.pass&&s.name)return;}catch(_){}g.style.display='flex';document.body.classList.add('locked');})();
+</script>
 <div class="wrap">
   <header>
     <img src="/rem-logo.png" alt="REM Academy" class="logo" />
@@ -191,6 +217,28 @@ let galleryImages = [];      // gallery: array of base64 (no prefix)
 const drop=$('drop'), file=$('file'), go=$('go'), err=$('err');
 const gdrop=$('gdrop'), gfile=$('gfile'), ggo=$('ggo'), gerr=$('gerr'), gthumbs=$('gthumbs'), gcount=$('gcount');
 
+/* ---------- MEMBER GATE ---------- */
+var GATE_KEY='rem_gate_v1';
+var member={name:'',email:'',pass:''};
+function loadMember(){ try{ var s=JSON.parse(localStorage.getItem(GATE_KEY)||'null'); if(s&&s.pass&&s.name){ member=s; return true; } }catch(_){ } return false; }
+function openGate(msg){ $('gate').style.display='flex'; document.body.classList.add('locked'); var e=$('g-err'); if(msg){ e.textContent=msg; e.style.display='block'; } else { e.style.display='none'; } if(member.name)$('g-name').value=member.name; if(member.email)$('g-email').value=member.email; }
+function closeGate(){ $('gate').style.display='none'; document.body.classList.remove('locked'); }
+function submitGate(){
+  var name=$('g-name').value.trim(), email=$('g-email').value.trim(), pass=$('g-pass').value.trim(), e=$('g-err');
+  if(!name){ e.textContent='Please enter your name.'; e.style.display='block'; return; }
+  if(!email||email.indexOf('@')<1){ e.textContent='Please enter a valid email.'; e.style.display='block'; return; }
+  if(!pass){ e.textContent='Please enter your access password.'; e.style.display='block'; return; }
+  e.style.display='none';
+  member={name:name,email:email,pass:pass};
+  try{ localStorage.setItem(GATE_KEY, JSON.stringify(member)); }catch(_){ }
+  $('g-pass').value='';
+  closeGate();
+}
+function lockOut(){ try{ localStorage.removeItem(GATE_KEY); }catch(_){ } member.pass=''; openGate("That access password isn't right. Check it and try again."); }
+$('g-go').addEventListener('click', submitGate);
+$('g-pass').addEventListener('keydown', function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); submitGate(); } });
+loadMember();
+
 function setMode(m){
   currentMode=m;
   $('mode-single').classList.toggle('active', m==='single');
@@ -246,9 +294,11 @@ async function analyze(){
   clearErr();
   go.disabled=true; go.innerHTML='<span class="spin"></span> Analyzing…';
   try{
-    const res = await fetch('/api/critique',{ method:'POST', headers:{'content-type':'application/json'},
-      body:JSON.stringify({ mode:'single', image:imageData, media_type:'image/jpeg', notes:$('intent').value.trim() }) });
+    const res = await fetch('/api/critique',{ method:'POST',
+      headers:{'content-type':'application/json','x-access-code':member.pass},
+      body:JSON.stringify({ mode:'single', image:imageData, media_type:'image/jpeg', notes:$('intent').value.trim(), name:member.name, email:member.email }) });
     const data = await res.json();
+    if(res.status===401){ lockOut(); return; }
     if(!res.ok){ throw new Error(data.error || 'Something went wrong.'); }
     render(data);
   }catch(e){ showErr(e.message || 'Could not reach the critique service. Try again.'); }
@@ -293,9 +343,11 @@ async function analyzeGallery(){
   clearErr();
   ggo.disabled=true; ggo.innerHTML='<span class="spin"></span> Analyzing '+galleryImages.length+' photos…';
   try{
-    const res = await fetch('/api/critique',{ method:'POST', headers:{'content-type':'application/json'},
-      body:JSON.stringify({ mode:'gallery', images:galleryImages, notes:$('gintent').value.trim() }) });
+    const res = await fetch('/api/critique',{ method:'POST',
+      headers:{'content-type':'application/json','x-access-code':member.pass},
+      body:JSON.stringify({ mode:'gallery', images:galleryImages, notes:$('gintent').value.trim(), name:member.name, email:member.email }) });
     const data = await res.json();
+    if(res.status===401){ lockOut(); return; }
     if(!res.ok){ throw new Error(data.error || 'Something went wrong.'); }
     renderGallery(data);
   }catch(e){ showErr(e.message || 'Could not reach the critique service. Try again.'); }
