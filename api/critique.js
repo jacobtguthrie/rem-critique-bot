@@ -173,9 +173,17 @@ module.exports = async (req, res) => {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) { res.status(500).json({ error: 'The critique service is not configured yet (missing API key).' }); return; }
 
-    // Optional shared passcode gate. Leave ACCESS_CODE unset to keep the link open.
-    const code = process.env.ACCESS_CODE;
-    if (code && req.headers['x-access-code'] !== code) {
+    // Shared passcode gate — two codes, one per tier:
+    //   ACCESS_CODE       paid REM Academy members
+    //   ACCESS_CODE_FREE  free REM community (defaults to REMFREE; set the env var to rotate it)
+    // Leave ACCESS_CODE unset to keep the link fully open.
+    const memberCode = process.env.ACCESS_CODE;
+    const freeCode = process.env.ACCESS_CODE_FREE || 'REMFREE';
+    const submitted = req.headers['x-access-code'];
+    let tier = null;
+    if (memberCode && submitted === memberCode) tier = 'member';
+    else if (submitted === freeCode) tier = 'free';
+    if (memberCode && !tier) {
       console.log('[ACCESS-DENIED] ' + new Date().toISOString());
       res.status(401).json({ error: 'Invalid access code.' });
       return;
@@ -215,6 +223,7 @@ module.exports = async (req, res) => {
     console.log('[ACCESS] ' + JSON.stringify({
       name: typeof body.name === 'string' ? body.name.slice(0, 80) : null,
       email: typeof body.email === 'string' ? body.email.slice(0, 120) : null,
+      tier: tier || 'open',
       mode: mode,
       ts: new Date().toISOString()
     }));
