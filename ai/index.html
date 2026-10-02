@@ -65,7 +65,7 @@ textarea::placeholder{color:var(--faint)}
 .primary{width:100%;background:var(--az);border:0;color:#fff;border-radius:12px;padding:13px;font:inherit;font-weight:600;font-size:15px;cursor:pointer}
 .primary:hover{background:var(--az-bri)}
 .hidden{display:none!important}
-@media (max-width:560px){.bubble{max-width:100%}.brand img{height:18px}.btn{padding:8px 11px}}
+@media (max-width:560px){.bubble{max-width:100%}.brand img{height:18px}.btn{padding:8px 11px;white-space:nowrap}.kick{white-space:nowrap;font-size:10px}.top{gap:8px}}
 </style>
 </head>
 <body>
@@ -126,7 +126,8 @@ textarea::placeholder{color:var(--faint)}
   send.onclick=ask;
 
   function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
-  function md(s){ // minimal: paragraphs, **bold**, bullets, numbers
+  function md(s){ // minimal: paragraphs, **bold**, bullets, numbers; em dashes become commas (house rule)
+    s=s.replace(/\s*[—–]\s*/g,', ').replace(/\s--\s/g,', ');
     const lines=s.split('\n'); let out='', list=null;
     const flush=()=>{if(list){out+=`<${list.t}>${list.items.map(i=>'<li>'+i+'</li>').join('')}</${list.t}>`; list=null}};
     for(let raw of lines){ const l=esc(raw).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
