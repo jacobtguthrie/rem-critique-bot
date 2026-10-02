@@ -2,8 +2,11 @@
   "name": "rem-critique-bot",
   "version": "1.0.0",
   "private": true,
-  "description": "REM Academy — Real Estate Photo Critique Bot. Upload a property photo, get a scored critique with ranked fixes.",
+  "description": "REM Academy \u2014 Photo Critique Bot + Jacob AI (members chat).",
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0"
   }
 }

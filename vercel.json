@@ -4,6 +4,13 @@
   "functions": {
     "api/critique.js": {
       "maxDuration": 60
+    },
+    "api/chat.js": {
+      "maxDuration": 60,
+      "includeFiles": "data/voice-pack.md"
+    },
+    "api/feedback.js": {
+      "maxDuration": 10
     }
   }
 }
