@@ -12,5 +12,15 @@
     "api/feedback.js": {
       "maxDuration": 10
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/ai-delegation-system",
+      "destination": "https://rem-ai-systems.vercel.app/ai-delegation-system"
+    },
+    {
+      "source": "/ai-delegation-system/:path*",
+      "destination": "https://rem-ai-systems.vercel.app/ai-delegation-system/:path*"
+    }
+  ]
 }
